@@ -7,6 +7,7 @@ import datetime
 import zoneinfo
 import math
 import random
+import hashlib
 from openai import OpenAI
 import os
 
@@ -314,11 +315,20 @@ def normalize_seed(n):
 
 def make_seed(a, b):
     parts = [
-        str(round(a["sun"],6)), str(round(a["moon"],6)), a["nakshatra"], a["paksha"], a["bird"],
-        str(round(b["sun"],6)), str(round(b["moon"],6)), b["nakshatra"], b["paksha"], b["bird"],
+        str(round(a.get("sun", 0.0), 6)),
+        str(round(a.get("moon", 0.0), 6)),
+        a.get("nakshatra", ""),
+        a.get("paksha", ""),
+        a.get("bird", ""),
+        str(round(b.get("sun", 0.0), 6)),
+        str(round(b.get("moon", 0.0), 6)),
+        b.get("nakshatra", ""),
+        b.get("paksha", ""),
+        b.get("bird", ""),
     ]
     s = "|".join(parts)
-    return int(hashlib.sha256(s.encode()).hexdigest()[:16], 16)
+    digest = hashlib.sha256(s.encode("utf-8")).hexdigest()[:16]
+    return int(digest, 16)
 
 def cosmic_origin(a, b):
     return f"Born under different skies — one in **{a}** by {b} light, the other in distant rhythm — yet threads still pulled taut."
